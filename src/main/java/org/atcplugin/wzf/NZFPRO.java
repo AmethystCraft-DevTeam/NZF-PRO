@@ -68,22 +68,22 @@ public final class NZFPRO extends JavaPlugin {
         }
         Material type = item.getType();
         return type == Material.SHULKER_BOX ||
-                type == Material.BLACK_SHULKER_BOX ||
-                type == Material.BLUE_SHULKER_BOX ||
-                type == Material.BROWN_SHULKER_BOX ||
-                type == Material.CYAN_SHULKER_BOX ||
-                type == Material.GRAY_SHULKER_BOX ||
-                type == Material.GREEN_SHULKER_BOX ||
-                type == Material.LIGHT_BLUE_SHULKER_BOX ||
-                type == Material.LIGHT_GRAY_SHULKER_BOX ||
-                type == Material.LIME_SHULKER_BOX ||
-                type == Material.MAGENTA_SHULKER_BOX ||
-                type == Material.ORANGE_SHULKER_BOX ||
-                type == Material.PINK_SHULKER_BOX ||
-                type == Material.PURPLE_SHULKER_BOX ||
-                type == Material.RED_SHULKER_BOX ||
-                type == Material.WHITE_SHULKER_BOX ||
-                type == Material.YELLOW_SHULKER_BOX;
+               type == Material.BLACK_SHULKER_BOX ||
+               type == Material.BLUE_SHULKER_BOX ||
+               type == Material.BROWN_SHULKER_BOX ||
+               type == Material.CYAN_SHULKER_BOX ||
+               type == Material.GRAY_SHULKER_BOX ||
+               type == Material.GREEN_SHULKER_BOX ||
+               type == Material.LIGHT_BLUE_SHULKER_BOX ||
+               type == Material.LIGHT_GRAY_SHULKER_BOX ||
+               type == Material.LIME_SHULKER_BOX ||
+               type == Material.MAGENTA_SHULKER_BOX ||
+               type == Material.ORANGE_SHULKER_BOX ||
+               type == Material.PINK_SHULKER_BOX ||
+               type == Material.PURPLE_SHULKER_BOX ||
+               type == Material.RED_SHULKER_BOX ||
+               type == Material.WHITE_SHULKER_BOX ||
+               type == Material.YELLOW_SHULKER_BOX;
     }
 
     public CooldownManager getCooldownManager() {
@@ -129,10 +129,10 @@ class CommandManager implements org.bukkit.command.CommandExecutor {
 }
 
 class CooldownManager {
-    private final Map<Player, Long> cooldownMap = new HashMap<>();
+    private final Map<Player, Long> dupeCooldownMap = new HashMap<>();
 
     public boolean canUseDupeCommand(Player player) {
-        Long lastUsedTime = cooldownMap.get(player);
+        Long lastUsedTime = dupeCooldownMap.get(player);
         if (lastUsedTime == null || (System.currentTimeMillis() - lastUsedTime) > 600000) { // 10 minutes in milliseconds
             return true;
         }
@@ -141,7 +141,7 @@ class CooldownManager {
     }
 
     public void setCooldown(Player player) {
-        cooldownMap.put(player, System.currentTimeMillis());
+        dupeCooldownMap.put(player, System.currentTimeMillis());
     }
 }
 
