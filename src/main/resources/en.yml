@@ -1,0 +1,7 @@
+messages:
+  welcome: "Welcome to use NZF-PRO"
+  disabled: "NZF-PRO has been disabled"
+  kill_command: "You have been killed!"
+  not_player: "This command can only be used by a player."
+  respawn_random: "You have been respawned at a random location on the ground."
+  respawn_bed: "You have a bed set, so you will respawn at your bed location."

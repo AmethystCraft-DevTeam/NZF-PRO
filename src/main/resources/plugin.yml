@@ -1,0 +1,13 @@
+name: NZF-PRO
+version: '1.0'
+main: org.atcplugin.wzf.NZFPRO
+api-version: '1.21'
+prefix: AmethystPlugin
+load: STARTUP
+authors: [ ATC Devplorer ]
+description: AmethystCraft Official Plugin
+website: amethyst.icu
+commands:
+  kill-i:
+    description: Kills the player who issued the command
+    usage: /kill-i <command>

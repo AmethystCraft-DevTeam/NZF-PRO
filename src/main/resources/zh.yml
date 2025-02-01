@@ -1,0 +1,7 @@
+messages:
+  welcome: "欢迎使用 NZF-PRO"
+  disabled: "NZF-PRO 已被禁用"
+  kill_command: "你已被杀死！"
+  not_player: "此命令只能由玩家使用。"
+  respawn_random: "你已被随机传送到地面上的一个位置。"
+  respawn_bed: "你有床的位置设置，所以你将在床的位置重生。"
