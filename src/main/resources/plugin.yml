@@ -11,3 +11,6 @@ commands:
   kill-i:
     description: Kills the player who issued the command
     usage: /kill-i <command>
+  dupe:
+    description: Duplicates the item in your inventory
+    usage: /dupe
