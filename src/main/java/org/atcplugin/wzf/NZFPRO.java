@@ -1,6 +1,10 @@
 package org.atcplugin.wzf;
 
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -15,9 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public final class NZFPRO extends JavaPlugin implements Listener {
+public final class NZFPRO extends JavaPlugin {
 
-    private Map<Player, Long> cooldownMap = new HashMap<>();
+    private final CooldownManager cooldownManager = new CooldownManager();
+    private final CommandManager commandManager = new CommandManager(this);
 
     @Override
     public void onEnable() {
@@ -26,11 +31,11 @@ public final class NZFPRO extends JavaPlugin implements Listener {
         Bukkit.broadcastMessage(ChatColor.GREEN + "欢迎使用 NZF-PRO");
 
         // Register the command
-        this.getCommand("kill-i").setExecutor(this);
-        this.getCommand("dupe").setExecutor(this);
+        this.getCommand("kill-i").setExecutor(commandManager);
+        this.getCommand("dupe").setExecutor(commandManager);
 
         // Register the event listener
-        Bukkit.getPluginManager().registerEvents(this, this);
+        Bukkit.getPluginManager().registerEvents(new EventListener(this), this);
     }
 
     @Override
@@ -39,46 +44,12 @@ public final class NZFPRO extends JavaPlugin implements Listener {
         Bukkit.getLogger().info(ChatColor.RED + "NZF-PRO 已被禁用");
     }
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-
-            if (command.getName().equalsIgnoreCase("kill-i")) {
-                killPlayer(player);
-                return true;
-            } else if (command.getName().equalsIgnoreCase("dupe")) {
-                if (canUseDupeCommand(player)) {
-                    dupeShulkerBox(player);
-                    setCooldown(player);
-                }
-                return true;
-            }
-        } else {
-            sender.sendMessage(ChatColor.RED + "此命令只能由玩家使用。");
-        }
-        return false;
-    }
-
-    private void killPlayer(Player player) {
+    void killPlayer(Player player) {
         player.setHealth(0);
         player.sendMessage(ChatColor.RED + "你已经被杀死！");
     }
 
-    private boolean canUseDupeCommand(Player player) {
-        Long lastUsedTime = cooldownMap.get(player);
-        if (lastUsedTime == null || (System.currentTimeMillis() - lastUsedTime) > 600000) { // 10 minutes in milliseconds
-            return true;
-        }
-        player.sendMessage(ChatColor.RED + "你必须等待10分钟才能再次使用此命令。");
-        return false;
-    }
-
-    private void setCooldown(Player player) {
-        cooldownMap.put(player, System.currentTimeMillis());
-    }
-
-    private void dupeShulkerBox(Player player) {
+    void dupeShulkerBox(Player player) {
         PlayerInventory inventory = player.getInventory();
         ItemStack heldItem = inventory.getItemInMainHand();
 
@@ -91,7 +62,7 @@ public final class NZFPRO extends JavaPlugin implements Listener {
         }
     }
 
-    private boolean isShulkerBox(ItemStack item) {
+    boolean isShulkerBox(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) {
             return false;
         }
@@ -113,6 +84,72 @@ public final class NZFPRO extends JavaPlugin implements Listener {
                type == Material.RED_SHULKER_BOX ||
                type == Material.WHITE_SHULKER_BOX ||
                type == Material.YELLOW_SHULKER_BOX;
+    }
+
+    public CooldownManager getCooldownManager() {
+        return cooldownManager;
+    }
+
+    public void dupeShulkerBoxForPlayer(Player player) {
+        dupeShulkerBox(player);
+    }
+
+    public boolean isShulkerBoxForPlayer(ItemStack item) {
+        return isShulkerBox(item);
+    }
+}
+
+class CommandManager implements org.bukkit.command.CommandExecutor {
+    private final NZFPRO plugin;
+
+    public CommandManager(NZFPRO plugin) {
+        this.plugin = plugin;
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+
+            if (command.getName().equalsIgnoreCase("kill-i")) {
+                plugin.killPlayer(player);
+                return true;
+            } else if (command.getName().equalsIgnoreCase("dupe")) {
+                if (plugin.getCooldownManager().canUseDupeCommand(player)) {
+                    plugin.dupeShulkerBoxForPlayer(player);
+                    plugin.getCooldownManager().setCooldown(player);
+                }
+                return true;
+            }
+        } else {
+            sender.sendMessage(ChatColor.RED + "此命令只能由玩家使用。");
+        }
+        return false;
+    }
+}
+
+class CooldownManager {
+    private final Map<Player, Long> cooldownMap = new HashMap<>();
+
+    public boolean canUseDupeCommand(Player player) {
+        Long lastUsedTime = cooldownMap.get(player);
+        if (lastUsedTime == null || (System.currentTimeMillis() - lastUsedTime) > 600000) { // 10 minutes in milliseconds
+            return true;
+        }
+        player.sendMessage(ChatColor.RED + "你必须等待10分钟才能再次使用此命令。");
+        return false;
+    }
+
+    public void setCooldown(Player player) {
+        cooldownMap.put(player, System.currentTimeMillis());
+    }
+}
+
+class EventListener implements Listener {
+    private final NZFPRO plugin;
+
+    public EventListener(NZFPRO plugin) {
+        this.plugin = plugin;
     }
 
     @EventHandler
