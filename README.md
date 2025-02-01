@@ -1,0 +1,2 @@
+# NZF-PRO
+仿2B2T.XIN插件
