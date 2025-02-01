@@ -1,0 +1,67 @@
+name: Build and Release Bukkit Plugin
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '21'
+          distribution: 'adopt'
+
+      - name: Build with Maven
+        run: mvn clean package
+
+      - name: Archive artifacts
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: bukkit-plugin
+          path: target/*.jar
+
+      - name: Create release notes
+        run: |
+          mkdir -p ./.release_files
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          echo -e "Commit message:\n\`\`\`\n$COMMIT_MESSAGE\n\`\`\`" > ./.release_files/release_notes.txt
+          COMMIT_HASH=$(git rev-parse HEAD)
+          echo "Commit hash: $COMMIT_HASH" >> ./.release_files/release_notes.txt
+          HITOKOTO=$(curl https://v1.hitokoto.cn/?encode=text)
+          echo -e "\n---\n $HITOKOTO \n\n AutoPackageAction By [@AmethystCraft-DevTeam](https://github.com/AmethystCraft-DevTeam) [@Starry-Sky-World](https://github.com/Starry-Sky-World)" >> ./.release_files/release_notes.txt
+
+      - name: Create timestamp
+        id: vars
+        run: echo "RELEASE_TAG=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+      - name: Configure git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get install -y gh
+          echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
+
+      - name: Create and push release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag_name=${{ env.RELEASE_TAG }}
+          release_name="Auto Package $tag_name"
+          gh release create $tag_name --title "$release_name" --notes-file ./.release_files/release_notes.txt target/*.jar
