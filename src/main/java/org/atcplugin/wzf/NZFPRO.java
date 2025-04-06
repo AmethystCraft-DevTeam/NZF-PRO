@@ -58,7 +58,7 @@ public final class NZFPRO extends JavaPlugin {
             newShulkerBox.setAmount(1);
             inventory.addItem(newShulkerBox);
         } else {
-            player.sendMessage(ChatColor.RED + "你必须在主手中拿着一个潜影盒才能使用此命令。");
+            player.sendMessage(ChatColor.RED + "你必须在主手中拿着一个潜影盒（可以是不同颜色）才能使用此命令。");
         }
     }
 
@@ -122,7 +122,7 @@ class CommandManager implements org.bukkit.command.CommandExecutor {
                 return true;
             }
         } else {
-            sender.sendMessage(ChatColor.RED + "此命令只能由玩家使用。");
+            sender.sendMessage(ChatColor.BLUE + "此命令只能由玩家使用。");
         }
         return false;
     }
